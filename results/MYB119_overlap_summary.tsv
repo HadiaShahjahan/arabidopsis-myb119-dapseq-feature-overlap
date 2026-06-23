@@ -1,0 +1,5 @@
+feature_type	overlapping_peaks	total_peaks	percentage
+genes	5054	9278	54.47
+exons	4848	9278	52.25
+CDS	3419	9278	36.85
+promoters_1kb	3197	9278	34.46
