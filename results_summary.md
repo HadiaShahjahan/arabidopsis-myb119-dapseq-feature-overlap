@@ -36,10 +36,10 @@ Genome annotation data for *Arabidopsis thaliana* TAIR10 were used to extract th
 
 | Feature Type | Overlapping Peaks | Total Peaks | Percentage |
 |---|---:|---:|---:|
-| Genes | Add your result | Add your result | Add your result |
-| Exons | Add your result | Add your result | Add your result |
-| CDS regions | Add your result | Add your result | Add your result |
-| 1 kb promoters | Add your result | Add your result | Add your result |
+| Genes | 5054 | 9278 | 54.47 |
+| Exons | 4848 | 9278 | 52.25 |
+| CDS regions | 3419 | 9278 | 36.85 |
+| 1 kb promoters | 3197 | 9278 | 34.46 |
 
 ---
 
