@@ -1,20 +1,25 @@
-Arabidopsis MYB119 DAP-seq Peak Annotation and Feature Overlap Analysis
+# Arabidopsis MYB119 DAP-seq Peak Annotation and Feature Overlap Analysis
 
-Project Overview
+## Overview
 
-This project performs genome annotation and feature overlap analysis using real Arabidopsis thaliana MYB119 DAP-seq peak data.
+This project performs **genome annotation and feature overlap analysis** using real *Arabidopsis thaliana* MYB119 DAP-seq peak data.
 
-The aim of this project is to determine how experimentally identified MYB119 transcription factor binding peaks are distributed across important genome annotation features, including genes, exons, coding sequences, and 1 kb upstream promoter regions.
+The goal of this project is to identify how experimentally detected **MYB119 transcription factor binding peaks** are distributed across key genome annotation features, including:
 
-This workflow represents a common regulatory genomics task: connecting experimentally detected DNA-binding regions with known genome features to support biological interpretation.
+* Genes
+* Exons
+* Coding sequences
+* 1 kb upstream promoter regions
+
+This workflow represents a common task in **regulatory genomics**, where experimentally identified DNA-binding regions are compared with annotated genome features to support biological interpretation.
 
 ---
 
-Research Question
+## Research Question
 
-Where do MYB119 DAP-seq binding peaks occur relative to annotated genomic features in the Arabidopsis thaliana TAIR10 genome?
+**Where do MYB119 DAP-seq binding peaks occur relative to annotated genomic features in the *Arabidopsis thaliana* TAIR10 genome?**
 
-Specifically, this project asks:
+This project specifically asks:
 
 * How many genes, exons, CDS regions, and promoter regions are present in the genome annotation?
 * How many MYB119 DAP-seq peaks overlap genes?
@@ -24,9 +29,9 @@ Specifically, this project asks:
 
 ---
 
-Biological Context
+## Biological Background
 
-MYB119 is a transcription factor in Arabidopsis thaliana. Transcription factors regulate gene expression by binding specific regions of DNA.
+MYB119 is a transcription factor in *Arabidopsis thaliana*. Transcription factors regulate gene expression by binding to specific DNA regions.
 
 DAP-seq is an experimental method used to identify genome-wide DNA-binding sites of transcription factors. By overlapping DAP-seq peaks with genome annotation features, researchers can investigate whether transcription factor binding occurs near genes, promoters, coding regions, or other functional genomic elements.
 
@@ -41,49 +46,52 @@ This type of analysis is relevant to:
 
 ---
 
-Dataset
+## Dataset Summary
 
-Category| Details
-Organism| Arabidopsis thaliana
-Genome assembly| TAIR10
-Candidate regions| MYB119 DAP-seq peaks
-Peak data type| Transcription factor binding regions
-Peak format| "narrowPeak"
-Annotation format| "GFF3"
-Analysis format| "BED"
-Main tool for overlap analysis| BEDTools
-
----
-
-Data Sources
-
-This project uses publicly available genomic datasets:
-
-Data Type| Source
-Genome annotation| Ensembl Plants Arabidopsis thaliana TAIR10 GFF3 annotation
-Genome FASTA| Ensembl Plants Arabidopsis thaliana TAIR10 genome sequence
-DAP-seq peaks| Public MYB119 DAP-seq peak file from NCBI GEO
-Peak file format| "narrowPeak"
-
-Large raw files such as genome FASTA and GFF3 annotation files are not included in this repository. They are downloaded automatically using the scripts provided in the "scripts/" folder.
+| Category | Details |
+|---|---|
+| Organism | *Arabidopsis thaliana* |
+| Genome assembly | TAIR10 |
+| Candidate regions | MYB119 DAP-seq peaks |
+| Peak data type | Transcription factor binding regions |
+| Peak format | `narrowPeak` |
+| Annotation format | `GFF3` |
+| Analysis format | `BED` |
+| Main analysis tool | BEDTools |
 
 ---
 
-Tools and Technologies
+## Data Sources
+
+This project uses publicly available genomic datasets.
+
+| Data Type | Source |
+|---|---|
+| Genome annotation | Ensembl Plants *Arabidopsis thaliana* TAIR10 GFF3 annotation |
+| Genome FASTA | Ensembl Plants *Arabidopsis thaliana* TAIR10 genome sequence |
+| DAP-seq peaks | Public MYB119 DAP-seq peak file from NCBI GEO |
+| Peak file format | `narrowPeak` |
+
+Large raw files such as genome FASTA files, GFF3 annotation files, and compressed raw datasets are **not included** in this repository. They are downloaded automatically using the scripts provided in the `scripts/` folder.
+
+---
+
+## Tools and Technologies
 
 * Google Colab
 * Linux command line
-* BEDTools
-* Samtools
-* AWK
 * Bash scripting
+* AWK
+* Samtools
+* BEDTools
 * GitHub
 * Markdown documentation
 
 ---
 
-Repository Structure
+## Repository Structure
 
+```text
 arabidopsis-myb119-dapseq-feature-overlap/
 ├── README.md
 ├── results_summary.md
@@ -102,132 +110,148 @@ arabidopsis-myb119-dapseq-feature-overlap/
 │   └── MYB119_promoter_overlaps.tsv
 └── notebooks/
     └── genome_annotation_feature_overlap_analysis.ipynb
+```
 
 ---
 
-Project Workflow
+## Workflow
 
-1. Genome Annotation Preparation
+### 1. Genome Annotation Preparation
 
-The Arabidopsis thaliana genome annotation file was downloaded in "GFF3" format. The annotation file was parsed to extract important genomic features:
+The *Arabidopsis thaliana* genome annotation file was downloaded in `GFF3` format.
+
+The annotation file was parsed to extract the following genomic features:
 
 * Genes
 * Exons
 * Coding sequences
 * 1 kb upstream promoter regions
 
-The extracted features were converted into "BED" format for interval-based analysis.
+The extracted features were converted into `BED` format for interval-based genomic analysis.
 
 ---
 
-2. Coordinate Format Conversion
+### 2. Coordinate Format Conversion
 
-The annotation file was originally in "GFF3" format, while BEDTools requires interval files in "BED" format.
+Genome annotation files and BED files use different coordinate systems.
 
-A key coordinate conversion was performed:
+| Format | Coordinate System |
+|---|---|
+| `GFF3` | 1-based coordinates |
+| `BED` | 0-based start coordinates |
 
-* "GFF3" uses 1-based coordinates
-* "BED" uses 0-based start coordinates
+Because BEDTools requires `BED` format, the start coordinate from the GFF3 file was adjusted during conversion.
 
-Therefore, the start coordinate from the GFF3 file was adjusted during conversion to BED format.
+This step is important because incorrect coordinate conversion can lead to inaccurate overlap results.
 
 ---
 
-3. Promoter Region Generation
+### 3. Promoter Region Generation
 
 Promoter regions were defined as:
 
+```text
 1 kb upstream of each gene
+```
 
-Promoter regions were generated using BEDTools "flank".
+Promoter regions were generated using BEDTools `flank`.
 
-The analysis was performed in a strand-aware manner using the "-s" option, so upstream regions were calculated according to gene orientation.
+The analysis was performed in a strand-aware manner using the `-s` option, so upstream regions were calculated according to gene orientation.
 
 ---
 
-4. DAP-seq Peak Preparation
+### 4. MYB119 DAP-seq Peak Preparation
 
-The MYB119 DAP-seq peak file was downloaded in "narrowPeak" format.
+The MYB119 DAP-seq peak file was downloaded in `narrowPeak` format.
 
-The peak file was converted into a clean BED file and used as the main candidate region file for overlap analysis.
+The peak file was converted into a clean `BED` file and used as the candidate regulatory region file for overlap analysis.
 
 The final candidate region file was:
 
+```text
 data/processed/candidate_regions.bed
+```
 
 ---
 
-5. Feature Overlap Analysis
+### 5. Feature Overlap Analysis
 
-MYB119 DAP-seq peaks were overlapped with the following genome annotation features:
+MYB119 DAP-seq peaks were overlapped with the following annotation features:
 
 * Genes
 * Exons
 * CDS regions
 * 1 kb upstream promoters
 
-BEDTools "intersect" was used to identify overlapping intervals and generate summary tables.
+BEDTools `intersect` was used to identify overlapping genomic intervals and generate result tables.
 
 ---
 
-Scripts
+## Scripts
 
-Script| Purpose
-"scripts/01_prepare_annotation.sh"| Downloads genome annotation and genome FASTA files, extracts genes, exons, CDS regions, and generates promoter regions
-"scripts/02_prepare_dapseq_peaks.sh"| Downloads and prepares MYB119 DAP-seq peak regions
-"scripts/03_feature_overlap_analysis.sh"| Performs BEDTools overlap analysis and generates result tables
+| Script | Purpose |
+|---|---|
+| `scripts/01_prepare_annotation.sh` | Downloads genome annotation and genome FASTA files, extracts genes, exons, CDS regions, and generates promoter regions |
+| `scripts/02_prepare_dapseq_peaks.sh` | Downloads and prepares MYB119 DAP-seq peak regions |
+| `scripts/03_feature_overlap_analysis.sh` | Performs BEDTools overlap analysis and generates result tables |
 
 ---
 
-How to Reproduce the Analysis
+## How to Reproduce the Analysis
 
-Run the scripts in order:
+Run the scripts in the following order:
 
+```bash
 bash scripts/01_prepare_annotation.sh
 bash scripts/02_prepare_dapseq_peaks.sh
 bash scripts/03_feature_overlap_analysis.sh
+```
 
 The workflow will:
 
-1. Download required public datasets
+1. Download the required public datasets
 2. Prepare annotation feature files
 3. Prepare MYB119 DAP-seq peak regions
-4. Perform overlap analysis
-5. Generate result tables
+4. Perform feature overlap analysis
+5. Generate summary result tables
 
 ---
 
-Key Annotation Feature Counts
+## Key Annotation Feature Counts
 
 The following genome annotation features were extracted from the TAIR10 annotation file:
 
-Feature Type| Count
-Genes| 27,655
-Exons| 313,952
-CDS regions| 286,067
-1 kb promoters| 27,655
+| Feature Type | Count |
+|---|---:|
+| Genes | 27,655 |
+| Exons | 313,952 |
+| CDS regions | 286,067 |
+| 1 kb promoters | 27,655 |
 
-These values confirm that the annotation extraction and promoter generation steps were completed successfully.
-
----
-
-Main Output Files
-
-Output File| Description
-"results/feature_counts.tsv"| Summary of extracted annotation feature counts
-"results/MYB119_overlap_summary.tsv"| Summary of MYB119 peak overlaps with genome features
-"results/MYB119_gene_overlaps.tsv"| MYB119 peaks overlapping gene regions
-"results/MYB119_exon_overlaps.tsv"| MYB119 peaks overlapping exon regions
-"results/MYB119_cds_overlaps.tsv"| MYB119 peaks overlapping CDS regions
-"results/MYB119_promoter_overlaps.tsv"| MYB119 peaks overlapping 1 kb upstream promoter regions
+These values confirm that annotation feature extraction and promoter generation were completed successfully.
 
 ---
 
-MYB119 Peak Overlap Summary
+## Main Output Files
+
+| Output File | Description |
+|---|---|
+| `results/feature_counts.tsv` | Summary of extracted annotation feature counts |
+| `results/MYB119_overlap_summary.tsv` | Summary of MYB119 peak overlaps with genomic features |
+| `results/MYB119_gene_overlaps.tsv` | MYB119 peaks overlapping gene regions |
+| `results/MYB119_exon_overlaps.tsv` | MYB119 peaks overlapping exon regions |
+| `results/MYB119_cds_overlaps.tsv` | MYB119 peaks overlapping CDS regions |
+| `results/MYB119_promoter_overlaps.tsv` | MYB119 peaks overlapping 1 kb upstream promoter regions |
+
+---
+
+## MYB119 Peak Overlap Summary
 
 The main overlap summary is available in:
 
+```text
 results/MYB119_overlap_summary.tsv
+```
 
 This file reports:
 
@@ -238,30 +262,32 @@ This file reports:
 
 A detailed interpretation is provided in:
 
+```text
 results_summary.md
+```
 
 ---
 
-Interpretation
+## Interpretation
 
 This project identifies how MYB119 DAP-seq binding peaks are distributed across annotated genomic regions.
 
-Peaks overlapping promoter regions may represent potential regulatory binding sites because promoters are commonly involved in transcriptional regulation.
+Peaks overlapping **promoter regions** may represent potential regulatory binding sites because promoters are commonly involved in transcriptional regulation.
 
-Peaks overlapping genes, exons, or CDS regions may indicate transcription factor binding within transcribed or protein-coding regions.
+Peaks overlapping **genes, exons, or CDS regions** may indicate transcription factor binding within transcribed or protein-coding regions.
 
 This analysis provides a foundation for understanding the genomic distribution of MYB119 binding sites and demonstrates how functional genomic regions can be connected with genome annotation features.
 
 ---
 
-Skills Demonstrated
+## Skills Demonstrated
 
-This project demonstrates practical skills in:
+This project demonstrates practical bioinformatics skills in:
 
 * Genome annotation analysis
 * Public genomic dataset usage
-* GFF3 file parsing
-* BED file preparation
+* `GFF3` file parsing
+* `BED` file preparation
 * Genomic coordinate conversion
 * DAP-seq peak annotation
 * Promoter region generation
@@ -274,9 +300,9 @@ This project demonstrates practical skills in:
 
 ---
 
-Why This Project Is Portfolio-Relevant
+## Portfolio Relevance
 
-This project is suitable for a bioinformatics portfolio because it demonstrates a complete workflow using real biological data.
+This project is suitable for a bioinformatics portfolio because it demonstrates a complete analysis workflow using real biological data.
 
 It shows the ability to:
 
@@ -291,7 +317,7 @@ The project connects technical bioinformatics skills with a meaningful biologica
 
 ---
 
-Limitations
+## Limitations
 
 This project focuses on basic feature overlap analysis. It does not yet include:
 
@@ -306,13 +332,13 @@ These limitations provide clear directions for future improvement.
 
 ---
 
-Future Improvements
+## Future Improvements
 
 Potential extensions of this project include:
 
 * Add nearest-gene analysis for MYB119 peaks
 * Visualize overlap percentages using bar plots
-* Compare MYB119 with additional Arabidopsis transcription factors
+* Compare MYB119 with additional *Arabidopsis* transcription factors
 * Perform motif enrichment analysis
 * Perform gene ontology enrichment analysis of nearby genes
 * Add peak distribution analysis across chromosomes
@@ -321,9 +347,9 @@ Potential extensions of this project include:
 
 ---
 
-Project Status
+## Project Status
 
-Status: Completed basic workflow
+**Status:** Completed basic workflow
 
 Completed components:
 
@@ -338,8 +364,8 @@ Completed components:
 
 ---
 
-Author
+## Author
 
-Hadia Shahjahan
+**Hadia Shahjahan**
 
 Bioinformatics learner building reproducible genomics projects using public datasets, command-line tools, and GitHub documentation.
